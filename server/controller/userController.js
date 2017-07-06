@@ -1,3 +1,9 @@
+/**
+ * userController.js
+ * 
+ * Contains all the Curd Operations Related to User
+ */
+
 //Call the packages we need.
 var express = require('express'); //call express.
 var bodyParser = require('body-parser');
@@ -6,82 +12,106 @@ var router = express.Router();
 router.use(bodyParser.urlencoded({ extended: true }));
 
 //Get User module
-var users = require('../model/userModel');
+var userService = require('../services/userService');
+
+router.get('/', getUsers);
+router.get('/:email', getUserByEmail);
+router.post('/', createUser);
+router.put('/:email', updateUser);
+router.delete('/:email', deleteUser);
 
 /**
  * Returns All Users
  */
-router.get('/', function(req, res) {
+function getUsers(req, res) {
+    userService.getUsers()
+        .then(function(users) {
+            if (users) {
+                res.send(users);
+            } else {
+                res.sendStatus(404);
+            }
+        });
+}
 
-    users.find({}, function(err, users) {
-        if (err) return res.status(500).send("There was a problem finding the users.");
-        res.status(200).send(users);
-    });
-});
 
 /**
  * Return single user required
  */
-router.get('/:email', function(req, res) {
-    users.find({ email: req.params.email }, function(err, users) {
-        if (err) return res.status(500).send("There was a problem finding the users.");
-        res.status(200).send(users);
-    });
-});
+function getUserByEmail(req, res) {
+    userService.getUserByEmail(req.params.email)
+        .then(function(user) {
+            if (user) {
+                res.send(user);
+            } else {
+                res.sendStatus(404);
+            }
+        });
+}
 
 /**
  * Insert user in to the database.
  */
-router.post('/', function(req, res) {
-
-    // create a new user
-    var newUser = new users({
-        name: req.body.name,
-        email: req.body.email,
-        phoneNo: req.body.phoneNo
-    });
-
-    // save the user
-    newUser.save(function(err) {
-        if (err) {
-            throw err;
-        }
-
-        console.log('User created!');
-    });
-});
+function createUser(req, res) {
+    userService.getUserByEmail(req.body.email)
+        .then(function(user) {
+            if (user.length != 0) {
+                res.send({ "message": "Email already Exists" });
+            } else {
+                userService.createUser(req.body)
+                    .then(function(err) {
+                        if (err) {
+                            res.sendStatus(404);
+                        } else {
+                            res.send({ "message": "User Created!" });
+                        }
+                    });
+            }
+        });
+}
 
 /**
  * Update Single User.
  */
-router.put('/:email', function(req, res) {
-    var data = req.body || {}
+function updateUser(req, res) {
 
-    if (data._id) {
-        users.update({ _id: data._id }, data, function(err) {
-            if (err) console.log("Update Error : " + err);
+    userService.getUserByEmail(req.params.email)
+        .then(function(user) {
+            if (user.length == 0) {
+                res.send({ "message": "Email Not Found!" });
+            } else {
+                userService.updateUser(req.params.email, req.body)
+                    .then(function(err) {
+                        if (err) {
+                            res.sendStatus(404);
+                        } else {
+                            res.send({ "message": "User Updated!" });
+                        }
+                    });
+            }
 
-            console.log('User Updated using ID!');
         });
-    } else {
-        users.update({ email: req.params.email }, data, function(err) {
-            if (err) console.log("Update Error : " + err);
-
-            console.log('User Updated using Email!');
-        });
-    }
-
-});
+}
 
 /**
  * Delete Single User
  */
-router.delete('/:email', function(req, res) {
-    users.remove({ email: req.params.email }, function(err) {
-        if (err) console.log('Delete Error : ' + err);
-
-        console.log("User Deleted");
-    });
-});
+function deleteUser(req, res) {
+    userService.getUserByEmail(req.params.email)
+        .then(function(user) {
+            if (user.length == 0) {
+                res.send({ "message": "Email Not Found!" });
+            } else {
+                userService.deleteUser(req.params.email)
+                    .then(function(err) {
+                        if (err) {
+                            res.sendStatus(404);
+                        } else {
+                            res.send({ "message": "User Deleted!" });
+                        }
+                    });
+            }
+        });
+}
 
 module.exports = router;

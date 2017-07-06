@@ -1,4 +1,8 @@
-//userModel.js
+/**
+ * userModel.js
+ * 
+ * User schema is define and the model is created.
+ */
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;

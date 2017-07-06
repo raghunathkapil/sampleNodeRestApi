@@ -1,3 +1,10 @@
+/**
+ * apiRouter.js
+ * 
+ * File contains all the respect api routers at one place.
+ */
+
+
 //Call the packages we need.
 var express = require('express'); //call express.
 var app = express(); //define app using express.
