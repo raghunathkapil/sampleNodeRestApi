@@ -7,6 +7,7 @@
 //Get User module
 var users = require('../model/userModel');
 var Q = require('q');
+var bcrypt = require("bcryptjs");
 
 //empty user service object created.
 var userService = {};
@@ -61,6 +62,9 @@ function createUser(userData) {
         email: userData.email,
         phoneNo: userData.phoneNo
     });
+
+    //encript the password using bcrypt.
+    newUser.password = bcrypt.hashSync(userData.password, 10);
 
     newUser.save(function(err) {
         if (err) {
