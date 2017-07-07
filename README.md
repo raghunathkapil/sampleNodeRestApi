@@ -7,5 +7,5 @@ Pre-required node and mongoDB should be installed.
 # Run "node server.js" 
 # Access "localhost:9080/api/user" to get required REST results. 
 
-Change the mongo DB Collection and DB name as of your requirements.
+Change the mongo DB Collection and DB name as per your requirements.
 
